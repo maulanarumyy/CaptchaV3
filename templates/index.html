@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA</title>
+</head>
+<body>
+    <h1>CAPTCHA</h1>
+    <p>Kata: "{{ keyword }}". Pilih gambar yang sesuai:</p>
+    <form action="/validate" method="post">
+        <input type="hidden" name="keyword" value="{{ keyword }}">
+        {% for image in images %}
+            <label>
+                <input type="radio" name="image" value="{{ image }}" required>
+                <img src="{{ url_for('static', filename=image) }}" alt="{{ image }}" width="100">
+            </label>
+        {% endfor %}
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
