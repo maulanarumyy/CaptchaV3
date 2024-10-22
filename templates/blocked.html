@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocked - CAPTCHA</title>
+    <script>
+        function startBlockCountdown() {
+            let countdownElement = document.getElementById("block_countdown");
+
+            function updateCountdown() {
+                fetch('/get_block_countdown')
+                .then(response => response.json())
+                .then(data => {
+                    let remainingTime = data.remaining_time;
+                    let minutes = Math.floor(remainingTime / 60);
+                    let seconds = remainingTime % 60;
+
+                    countdownElement.textContent = minutes + " minutes " + seconds + " seconds remaining";
+
+                    // Jika waktu habis, reload halaman untuk kembali ke CAPTCHA
+                    if (remainingTime <= 0) {
+                        countdownElement.textContent = "Block time is over. Reloading...";
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                });
+            }
+
+            // Update setiap 1 detik
+            setInterval(updateCountdown, 1000);
+        }
+
+        window.onload = startBlockCountdown;
+    </script>
+</head>
+<body>
+    <h1>You are blocked!</h1>
+    <p>You have failed CAPTCHA too many times. Please wait for the block time to end.</p>
+    <p id="block_countdown">Loading block countdown...</p> <!-- Countdown Timer -->
+</body>
+</html>
