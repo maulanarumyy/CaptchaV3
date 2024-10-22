@@ -2,51 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css"
-    <title>CAPTCHA</title>
+    <title>Captcha</title>
     <script>
-        function startCountdown() {
-            // Fungsi untuk mengupdate timer setiap detik
-            let countdownElement = document.getElementById("countdown");
-            function updateCountdown() {
-                fetch('/get_countdown')
-                .then(response => response.json())
-                .then(data => {
-                    let remainingTime = Math.floor(data.remaining_time);
-                    countdownElement.textContent = remainingTime + " seconds remaining";
-                    
-                    // Jika waktu habis, refresh halaman
-                    if (remainingTime <= 0) {
-                        countdownElement.textContent = "Time's up!";
-                        setTimeout(() => location.reload(), 1000);  // Tunggu 1 detik sebelum reload
-                    }
-                });
-            }
-            
-            // Update setiap 1 detik
-            setInterval(updateCountdown, 1000);
+        let timer;
+        let clickCount = 0;
+        let timeout = 30000;  // 30 detik
+
+        function startTimeout() {
+            timer = setTimeout(function() {
+                alert("You took too long to respond. Try again.");
+                window.location.href = '/';
+            }, timeout);
         }
 
-        window.onload = startCountdown;
+        function resetTimeout() {
+            clearTimeout(timer);
+            startTimeout();
+        }
+
+        window.onload = function() {
+            startTimeout();
+
+            document.querySelectorAll('.captcha-image').forEach(img => {
+                img.addEventListener('click', function() {
+                    clickCount++;
+                    fetch('/track-click', { method: 'POST' });
+                    resetTimeout();
+                });
+            });
+        };
+
+        function checkForTimeout() {
+            fetch('/check-timeout', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'timeout') {
+                        alert('Session timed out due to inactivity.');
+                        window.location.href = '/';
+                    }
+                });
+        }
+
+        setInterval(checkForTimeout, 5000);  // Cek timeout setiap 5 detik
     </script>
 </head>
 <body>
-    <h1>CAPTCHA</h1>
-    <p>Kata: "{{ keyword }}". Pilih gambar yang sesuai:</p>
-    
-    <form action="/validate" method="post">
+    <h1>Select the correct image for: {{ keyword }}</h1>
+    <form method="POST" action="/validate">
         <input type="hidden" name="keyword" value="{{ keyword }}">
-        {% for image in images %}
-            <label>
-                <input type="radio" name="image" value="{{ image }}" required>
-                <img src="{{ url_for('static', filename=image) }}" alt="{{ image }}" width="100">
-            </label>
-        {% endfor %}
-        <br><br>
+        <div>
+            {% for image in images %}
+                <label>
+                    <input type="radio" name="image" value="{{ image }}">
+                    <img src="{{ static }}" alt="{{ image }}" class="captcha-image">
+                </label>
+            {% endfor %}
+        </div>
         <button type="submit">Submit</button>
     </form>
-
-    <p id="countdown">30 seconds remaining</p> <!-- Countdown Timer -->
 </body>
 </html>
