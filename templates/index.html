@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css"
+    <title>CAPTCHA</title>
+    <script>
+        function startCountdown() {
+            // Fungsi untuk mengupdate timer setiap detik
+            let countdownElement = document.getElementById("countdown");
+            function updateCountdown() {
+                fetch('/get_countdown')
+                .then(response => response.json())
+                .then(data => {
+                    let remainingTime = Math.floor(data.remaining_time);
+                    countdownElement.textContent = remainingTime + " seconds remaining";
+                    
+                    // Jika waktu habis, refresh halaman
+                    if (remainingTime <= 0) {
+                        countdownElement.textContent = "Time's up!";
+                        setTimeout(() => location.reload(), 1000);  // Tunggu 1 detik sebelum reload
+                    }
+                });
+            }
+            
+            // Update setiap 1 detik
+            setInterval(updateCountdown, 1000);
+        }
+
+        window.onload = startCountdown;
+    </script>
+</head>
+<body>
+    <h1>CAPTCHA</h1>
+    <p>Kata: "{{ keyword }}". Pilih gambar yang sesuai:</p>
+    
+    <form action="/validate" method="post">
+        <input type="hidden" name="keyword" value="{{ keyword }}">
+        {% for image in images %}
+            <label>
+                <input type="radio" name="image" value="{{ image }}" required>
+                <img src="{{ url_for('static', filename=image) }}" alt="{{ image }}" width="100">
+            </label>
+        {% endfor %}
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="countdown">30 seconds remaining</p> <!-- Countdown Timer -->
+</body>
+</html>
