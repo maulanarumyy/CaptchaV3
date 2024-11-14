@@ -72,7 +72,6 @@
         <img src="../pictures/summer.png" alt="Gambar tempat teduh yang nyaman" />
         <h3>Udaranya terasa panas sekali. Kira-kira, tempat mana yang nyaman untuk Kamu berteduh?</h3>
         <div class="options">
-            <!-- Each option contains an image with an onclick event -->
             <div class="option">
                 <img src="../pictures/tree.png" alt="Pohon" onclick="checkAnswer('Pohon')">
                 <p>Pohon</p>
@@ -98,6 +97,9 @@
             if (answer === "Pohon") {
                 successMessage.style.display = "block";
                 errorMessage.style.display = "none";
+                
+                // Send a message to the parent window indicating success
+                window.parent.postMessage('CAPTCHA_SUCCESS', '*');
             } else {
                 errorMessage.style.display = "block";
                 successMessage.style.display = "none";

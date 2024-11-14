@@ -98,6 +98,7 @@
             if (answer === "Corgi") {
                 successMessage.style.display = "block";
                 errorMessage.style.display = "none";
+                window.parent.postMessage('CAPTCHA_SUCCESS', '*');
             } else {
                 errorMessage.style.display = "block";
                 successMessage.style.display = "none";
