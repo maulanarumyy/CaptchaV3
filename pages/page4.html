@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA ILUSTRATION</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .captcha-container {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            max-width: 500px;
+        }
+        .captcha-container h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            justify-content: space-around;
+        }
+        .option {
+            text-align: center;
+        }
+        .option img {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .option img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .success-message, .error-message {
+            display: none;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .success-message {
+            color: green;
+        }
+        .error-message {
+            color: red;
+        }
+
+        img {
+            width: 80%; /* Mengatur lebar gambar agar responsif */
+            max-width: 600px; /* Lebar maksimum gambar */
+            height: auto; /* Memastikan proporsi gambar tetap terjaga */
+            border: 2px solid #ccc; /* Border untuk gambar */
+            border-radius: 10px; /* Sudut gambar melengkung */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Bayangan untuk efek 3D */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="captcha-container">
+        <img src="../pictures/swingset.png" alt="Gambar hewan peliharaan yang lucu" />
+        <h3>Kamu ingin bermain ayunan di taman. Siapakah orang yang kamu ajak untuk bermain bersama?</h3>
+        <div class="options">
+            <!-- Each option contains an image with an onclick event -->
+            <div class="option">
+                <img src="../pictures/man.png" alt="RandomMan" onclick="checkAnswer('RandomMan')">
+                <p>Random Man</p>
+            </div>
+            <div class="option">
+                <img src="../pictures/kid.png" alt="Friends" onclick="checkAnswer('Friends')">
+                <p>Friends</p>
+            </div>
+            <div class="option">
+                <img src="../pictures/granpa.png" alt="Granpa" onclick="checkAnswer('Granpa')">
+                <p>Granpa</p>
+            </div>
+        </div>
+        <div id="success" class="success-message">CAPTCHA berhasil diselesaikan!</div>
+        <div id="error" class="error-message">Jawaban salah, coba lagi.</div>
+    </div>
+
+    <script>
+        function checkAnswer(answer) {
+            const successMessage = document.getElementById("success");
+            const errorMessage = document.getElementById("error");
+
+            if (answer === "Friends") {
+                successMessage.style.display = "block";
+                errorMessage.style.display = "none";
+                window.parent.postMessage('CAPTCHA_SUCCESS', '*');
+                window.location.href = 'https://mathewsin.github.io/CaptchaTester/';
+            } else {
+                errorMessage.style.display = "block";
+                successMessage.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
