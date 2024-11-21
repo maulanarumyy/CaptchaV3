@@ -81,11 +81,12 @@
         function startCaptchaTimer(duration) {
             let timeRemaining = duration;
             isLocked = false; // Buka akses untuk menjawab
-    
+        
             const timerDisplay = document.getElementById("captcha-timer-display");
+            const lockMessage = document.getElementById("lock-message");
             timerDisplay.style.display = "block";
             timerDisplay.textContent = `Waktu tersisa: ${timeRemaining} detik`;
-    
+        
             answerTimer = setInterval(() => {
                 timeRemaining--;
                 if (timeRemaining > 0) {
@@ -93,9 +94,15 @@
                 } else {
                     clearInterval(answerTimer);
                     isLocked = true; // Kunci CAPTCHA jika waktu habis
-                    timerDisplay.textContent = "Waktu habis! Silakan ulangi CAPTCHA.";
+                    timerDisplay.style.display = "none"; // Sembunyikan timer jawaban
+                    lockMessage.style.display = "block";
+                    lockMessage.textContent = "Waktu habis! Anda terkunci selama 5 detik.";
+        
+                    // Tambahkan timeout 5 detik
                     setTimeout(() => {
-                        location.reload(); // Muat ulang halaman setelah 5 detik
+                        isLocked = false; // Buka akses setelah timeout selesai
+                        lockMessage.style.display = "none";
+                        location.reload(); // Muat ulang halaman untuk memberikan CAPTCHA baru
                     }, 5000);
                 }
             }, 1000);
@@ -123,6 +130,5 @@
             }, 1000);
         }
     </script>
-    <script src="../backend/backend.js"></script>
-</body>
+</body> 
 </html>

@@ -15,15 +15,15 @@
             <!-- Each option contains an image with an onclick event -->
             <div class="option">
                 <img src="../pictures/man.png" alt="RandomMan" onclick="checkAnswer('RandomMan')">
-                <p>Random Man</p>
+                <p>Lelaki Random</p>
             </div>
             <div class="option">
                 <img src="../pictures/kid.png" alt="Friends" onclick="checkAnswer('Friends')">
-                <p>Friends</p>
+                <p>Teman</p>
             </div>
             <div class="option">
                 <img src="../pictures/granpa.png" alt="Granpa" onclick="checkAnswer('Granpa')">
-                <p>Granpa</p>
+                <p>Kakek</p>
             </div>
         </div>
         <div id="success" class="success-message">CAPTCHA berhasil diselesaikan!</div>
@@ -31,19 +31,102 @@
     </div>
 
     <script>
+        let isLocked = false; // Status apakah CAPTCHA terkunci
+        let wrongAttempts = 0; // Jumlah kesalahan pengguna
+        let answerTimer; // Timer untuk menjawab CAPTCHA
+        let lockTimer; // Timer untuk timeout 5 menit
+    
+        window.onload = function () {
+            startCaptchaTimer(30); // Mulai timer 30 detik saat CAPTCHA dimuat
+        };
+    
         function checkAnswer(answer) {
             const successMessage = document.getElementById("success");
             const errorMessage = document.getElementById("error");
-
+            const timerDisplay = document.getElementById("captcha-timer-display");
+            const lockMessage = document.getElementById("lock-message");
+    
+            if (isLocked) {
+                alert("CAPTCHA terkunci. Silakan tunggu hingga timer selesai.");
+                return;
+            }
+    
             if (answer === "Friends") {
+                clearInterval(answerTimer); // Hentikan timer jika jawaban benar
+                timerDisplay.style.display = "none"; // Sembunyikan timer
                 successMessage.style.display = "block";
                 errorMessage.style.display = "none";
+    
+                // Reset kesalahan jika jawaban benar
+                wrongAttempts = 0;
+    
+                // Kirim pesan keberhasilan
                 window.parent.postMessage('CAPTCHA_SUCCESS', '*');
                 window.location.href = 'https://mathewsin.github.io/CaptchaTester/';
             } else {
+                wrongAttempts++; // Tambah jumlah kesalahan
                 errorMessage.style.display = "block";
                 successMessage.style.display = "none";
+    
+                if (wrongAttempts >= 3) {
+                    // Jika kesalahan 3 kali, aktifkan timeout 5 menit
+                    clearInterval(answerTimer); // Hentikan timer 30 detik
+                    timerDisplay.style.display = "none"; // Sembunyikan timer jawaban
+                    startLockTimer(15); // Timer 5 menit
+                }
             }
+        }
+    
+        function startCaptchaTimer(duration) {
+            let timeRemaining = duration;
+            isLocked = false; // Buka akses untuk menjawab
+        
+            const timerDisplay = document.getElementById("captcha-timer-display");
+            const lockMessage = document.getElementById("lock-message");
+            timerDisplay.style.display = "block";
+            timerDisplay.textContent = `Waktu tersisa: ${timeRemaining} detik`;
+        
+            answerTimer = setInterval(() => {
+                timeRemaining--;
+                if (timeRemaining > 0) {
+                    timerDisplay.textContent = `Waktu tersisa: ${timeRemaining} detik`;
+                } else {
+                    clearInterval(answerTimer);
+                    isLocked = true; // Kunci CAPTCHA jika waktu habis
+                    timerDisplay.style.display = "none"; // Sembunyikan timer jawaban
+                    lockMessage.style.display = "block";
+                    lockMessage.textContent = "Waktu habis! Anda terkunci selama 5 detik.";
+        
+                    // Tambahkan timeout 5 detik
+                    setTimeout(() => {
+                        isLocked = false; // Buka akses setelah timeout selesai
+                        lockMessage.style.display = "none";
+                        location.reload(); // Muat ulang halaman untuk memberikan CAPTCHA baru
+                    }, 5000);
+                }
+            }, 1000);
+        }
+    
+        function startLockTimer(duration) {
+            let timeRemaining = duration;
+            isLocked = true; // Kunci CAPTCHA
+    
+            const lockMessage = document.getElementById("lock-message");
+            lockMessage.style.display = "block";
+            lockMessage.textContent = `Anda terkunci selama ${timeRemaining} detik.`;
+    
+            lockTimer = setInterval(() => {
+                timeRemaining--;
+                if (timeRemaining > 0) {
+                    lockMessage.textContent = `Anda terkunci selama ${timeRemaining} detik.`;
+                } else {
+                    clearInterval(lockTimer);
+                    isLocked = false; // Buka akses setelah timeout selesai
+                    wrongAttempts = 0; // Reset jumlah kesalahan
+                    lockMessage.style.display = "none";
+                    location.reload(); // Muat ulang halaman untuk memberikan CAPTCHA baru
+                }
+            }, 1000);
         }
     </script>
 </body>
