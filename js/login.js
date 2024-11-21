@@ -18,6 +18,7 @@ function validateLogin(event) {
         document.getElementById('error-message').style.color = 'red';
     }
 }
+//test
 
 // Close the CAPTCHA modal when the close button is clicked
 /*const closeModal = document.getElementById('closeModal');
