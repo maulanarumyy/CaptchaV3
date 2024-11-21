@@ -7,7 +7,7 @@ function validateLogin(event) {
     // Validate the credentials
     if (username === 'admin' && password === 'admin') {
         // Randomly select one of the CAPTCHA pages (page1.html to page4.html)
-        const captchaPages = ['/pages/page1.html', '/pages/page2.html', '/pages/page3.html', '/pages/page4.html'];
+        const captchaPages = ['pages/page1.html', 'pages/page2.html', 'pages/page3.html', 'pages/page4.html'];
         const randomPage = captchaPages[Math.floor(Math.random() * captchaPages.length)];
 
         // Redirect the user to the randomly selected CAPTCHA page
