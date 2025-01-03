@@ -1,4 +1,4 @@
-// Daftar halaman CAPTCHA (termasuk halaman 5)
+// Daftar halaman CAPTCHA
 const captchaPages = [
     "page1.html",
     "page2.html",
@@ -26,21 +26,17 @@ window.onload = function () {
 
     // Cek apakah sudah terkunci
     if (localStorage.getItem("isLocked") === "true") {
-        startLockTimer(15, false); // Lanjutkan timeout jika terkunci
+        startLockTimer(30, false); // Lanjutkan timeout jika terkunci
     } else {
         // Mulai timer untuk menjawab (30 detik)
         startCaptchaTimer(30);
     }
-
-    // Pilih halaman CAPTCHA secara acak pada refresh
-    redirectToRandomCaptcha();
 };
 
 // Fungsi memeriksa jawaban
 function checkAnswer(answer, correctAnswer) {
     const successMessage = document.getElementById("success");
     const errorMessage = document.getElementById("error");
-    const lockMessage = document.getElementById("lock-message");
     const timerDisplay = document.getElementById("captcha-timer");
 
     if (isLocked) {
@@ -65,13 +61,12 @@ function checkAnswer(answer, correctAnswer) {
         successMessage.style.display = "none";
 
         if (wrongAttempts >= 3) {
-            // Hentikan timer dan aktifkan timeout
-            timerDisplay.style.display = "none"; // Sembunyikan timer selama timeout
-            clearInterval(captchaTimer);
-            localStorage.setItem("isLocked", "true"); // Tandai terkunci
-            startLockTimer(15, true); // Timeout 15 detik
+            // Kunci CAPTCHA jika salah 3 kali
+            localStorage.setItem("isLocked", "true");
+            startLockTimer(30, true); // Timeout 30 detik
         } else {
-            redirectToNextCaptcha(); // Arahkan ke CAPTCHA lainnya
+            // Langsung pindah ke CAPTCHA lainnya jika belum 3 kali salah
+            redirectToNextCaptcha();
         }
     }
 }
@@ -98,7 +93,7 @@ function startCaptchaTimer(duration) {
     }, 1000);
 }
 
-// Fungsi untuk memulai timeout (15 detik)
+// Fungsi untuk memulai timeout (30 detik)
 function startLockTimer(duration, resetLockStatus) {
     let timeRemaining = duration;
     isLocked = true; // Kunci CAPTCHA
@@ -119,7 +114,7 @@ function startLockTimer(duration, resetLockStatus) {
                 localStorage.setItem("wrongAttempts", "0"); // Reset jumlah kesalahan
             }
             lockMessage.style.display = "none";
-            redirectToFirstCaptcha(); // Arahkan ke CAPTCHA awal
+            redirectToNextCaptcha(); // Lanjutkan ke CAPTCHA lainnya
         }
     }, 1000);
 }
@@ -145,14 +140,6 @@ function redirectToNextCaptcha() {
     } else {
         redirectToFirstCaptcha(); // Jika semua halaman telah dikunjungi, ulangi dari awal
     }
-}
-
-// Fungsi untuk mengarahkan ke halaman CAPTCHA acak
-function redirectToRandomCaptcha() {
-    const randomPage = captchaPages[Math.floor(Math.random() * captchaPages.length)];
-    setTimeout(() => {
-        window.location.href = randomPage;
-    }, 1000);
 }
 
 // Fungsi untuk mengarahkan ke halaman sukses (jika diperlukan)
