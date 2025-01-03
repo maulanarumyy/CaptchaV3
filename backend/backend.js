@@ -1,4 +1,4 @@
-// Daftar halaman CAPTCHA
+// Daftar halaman CAPTCHA (termasuk halaman 5)
 const captchaPages = [
     "page1.html",
     "page2.html",
@@ -31,6 +31,9 @@ window.onload = function () {
         // Mulai timer untuk menjawab (30 detik)
         startCaptchaTimer(30);
     }
+
+    // Pilih halaman CAPTCHA secara acak pada refresh
+    redirectToRandomCaptcha();
 };
 
 // Fungsi memeriksa jawaban
@@ -142,6 +145,14 @@ function redirectToNextCaptcha() {
     } else {
         redirectToFirstCaptcha(); // Jika semua halaman telah dikunjungi, ulangi dari awal
     }
+}
+
+// Fungsi untuk mengarahkan ke halaman CAPTCHA acak
+function redirectToRandomCaptcha() {
+    const randomPage = captchaPages[Math.floor(Math.random() * captchaPages.length)];
+    setTimeout(() => {
+        window.location.href = randomPage;
+    }, 1000);
 }
 
 // Fungsi untuk mengarahkan ke halaman sukses (jika diperlukan)
