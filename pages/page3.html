@@ -131,7 +131,21 @@
                 }
             }, 1000);
         }
+
+        window.onload = function () {
+            // Cek apakah halaman sebelumnya telah di-refresh
+            if (sessionStorage.getItem("isRefreshed") === "true") {
+                // Refresh halaman jika mendeteksi refresh manual
+                sessionStorage.removeItem("isRefreshed");
+                location.reload();
+            } else {
+                // Tandai bahwa refresh telah terjadi pada halaman ini
+                sessionStorage.setItem("isRefreshed", "true");
+                startCaptchaTimer(30); // Mulai timer 30 detik saat CAPTCHA dimuat
+            }
+        };
+    
     </script>
-    <script src="../backend/backend.js"></script>
+
 </body>
 </html>
