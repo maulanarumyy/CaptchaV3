@@ -3,8 +3,7 @@ const captchaPages = [
     "page1.html",
     "page2.html",
     "page3.html",
-    "page4.html",
-    "page5.html"
+    "page4.html"
 ];
 
 // Fungsi saat halaman dimuat
