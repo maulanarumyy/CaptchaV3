@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="../style/pages.css">
 </head>
 <body>
-
     <div class="captcha-container">
         <img src="../pictures/petshop.jpg" alt="Gambar hewan peliharaan yang lucu" />
         <h3>Kamu sedang mencari teman berbulu yang lucu. Mana pilihan hewan yang bisa Kamu ajak bermain di rumah?</h3>
@@ -32,23 +31,28 @@
     </div>
 
     <script>
-        let isLocked = localStorage.getItem("isLocked") === "true";
+        let isLocked = false;
         let wrongAttempts = parseInt(localStorage.getItem("wrongAttempts")) || 0;
         let lockEndTime = parseInt(localStorage.getItem("lockEndTime")) || 0;
         let answerTimer;
 
         window.onload = function () {
             let currentTime = Date.now();
-            if (isLocked && currentTime < lockEndTime) {
-                startLockTimer((lockEndTime - currentTime) / 1000);
+
+            if (lockEndTime > currentTime) {
+                startLockTimer(Math.ceil((lockEndTime - currentTime) / 1000));
             } else {
-                localStorage.removeItem("isLocked");
                 localStorage.removeItem("lockEndTime");
                 startCaptchaTimer(30);
             }
         };
 
         function checkAnswer(answer) {
+            const successMessage = document.getElementById("success");
+            const errorMessage = document.getElementById("error");
+            const timerDisplay = document.getElementById("captcha-timer-display");
+            const lockMessage = document.getElementById("lock-message");
+
             if (isLocked) {
                 alert("CAPTCHA terkunci. Silakan tunggu hingga timer selesai.");
                 return;
@@ -56,50 +60,69 @@
 
             if (answer === "Corgi") {
                 clearInterval(answerTimer);
-                document.getElementById("captcha-timer-display").style.display = "none";
-                document.getElementById("success").style.display = "block";
-                document.getElementById("error").style.display = "none";
+                timerDisplay.style.display = "none";
+                successMessage.style.display = "block";
+                errorMessage.style.display = "none";
+                wrongAttempts = 0;
                 localStorage.removeItem("wrongAttempts");
+                window.parent.postMessage('CAPTCHA_SUCCESS', '*');
                 window.location.href = 'https://mathewsin.github.io/CaptchaTester/';
             } else {
                 wrongAttempts++;
                 localStorage.setItem("wrongAttempts", wrongAttempts);
-                document.getElementById("error").style.display = "block";
-                document.getElementById("success").style.display = "none";
+                errorMessage.style.display = "block";
+                successMessage.style.display = "none";
+
                 if (wrongAttempts >= 3) {
-                    startLockTimer(15);
+                    clearInterval(answerTimer);
+                    timerDisplay.style.display = "none";
+                    let lockDuration = 15;
+                    let lockUntil = Date.now() + lockDuration * 1000;
+                    localStorage.setItem("lockEndTime", lockUntil);
+                    startLockTimer(lockDuration);
                 }
             }
         }
 
         function startCaptchaTimer(duration) {
             let timeRemaining = duration;
-            document.getElementById("captcha-timer-display").style.display = "block";
+            isLocked = false;
+            
+            const timerDisplay = document.getElementById("captcha-timer-display");
+            timerDisplay.style.display = "block";
+            timerDisplay.textContent = `Waktu tersisa: ${timeRemaining} detik`;
+            
             answerTimer = setInterval(() => {
                 timeRemaining--;
-                document.getElementById("captcha-timer-display").textContent = `Waktu tersisa: ${timeRemaining} detik`;
-                if (timeRemaining <= 0) {
+                if (timeRemaining > 0) {
+                    timerDisplay.textContent = `Waktu tersisa: ${timeRemaining} detik`;
+                } else {
                     clearInterval(answerTimer);
+                    isLocked = true;
+                    timerDisplay.style.display = "none";
                     startLockTimer(5);
                 }
             }, 1000);
         }
 
         function startLockTimer(duration) {
-            let timeRemaining = duration;
             isLocked = true;
-            let lockEndTime = Date.now() + duration * 1000;
-            localStorage.setItem("isLocked", "true");
-            localStorage.setItem("lockEndTime", lockEndTime);
-            document.getElementById("lock-message").style.display = "block";
+            let timeRemaining = duration;
+            const lockMessage = document.getElementById("lock-message");
+            lockMessage.style.display = "block";
+            lockMessage.textContent = `Anda terkunci selama ${timeRemaining} detik.`;
+            
             let lockTimer = setInterval(() => {
                 timeRemaining--;
-                document.getElementById("lock-message").textContent = `Anda terkunci selama ${timeRemaining} detik.`;
-                if (timeRemaining <= 0) {
+                if (timeRemaining > 0) {
+                    lockMessage.textContent = `Anda terkunci selama ${timeRemaining} detik.`;
+                } else {
                     clearInterval(lockTimer);
-                    localStorage.removeItem("isLocked");
-                    localStorage.removeItem("lockEndTime");
+                    isLocked = false;
+                    wrongAttempts = 0;
                     localStorage.removeItem("wrongAttempts");
+                    localStorage.removeItem("lockEndTime");
+                    lockMessage.style.display = "none";
                     location.reload();
                 }
             }, 1000);
